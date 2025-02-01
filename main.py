@@ -1,4 +1,5 @@
 import os
+import requests
 
 # 🟢 Step 1: Data File Create Karna
 data_file = "data.txt"
@@ -77,5 +78,39 @@ button {
 with open("style.css", "w", encoding="utf-8") as file:
     file.write(css_content)
 print("style.css created successfully!")
+
+# 🟢 Step 4: Facebook Auto Comment Code
+# ✅ `data.txt` se values read karna
+if os.path.exists("data.txt"):
+    with open("data.txt", "r", encoding="utf-8") as file:
+        data = dict(line.strip().split("=", 1) for line in file if "=" in line)
+
+    TOKEN = data.get("TOKEN")
+    POST_LINK = data.get("POST_LINK")
+    COMMENT_TEXT = "This is an auto-generated comment using Python!"
+
+    if not TOKEN or not POST_LINK:
+        print("❌ Error: TOKEN or POST_LINK missing in data.txt")
+        exit()
+
+    # ✅ Post ID Extract Karna (Post Link se)
+    post_id = POST_LINK.split("/")[-1]
+
+    # ✅ Facebook Graph API Call to Comment
+    url = f"https://graph.facebook.com/{post_id}/comments"
+    params = {
+        "message": COMMENT_TEXT,
+        "access_token": TOKEN
+    }
+
+    response = requests.post(url, params=params)
+
+    if response.status_code == 200:
+        print("✅ Comment posted successfully on Facebook!")
+    else:
+        print(f"❌ Failed to post comment: {response.text}")
+
+else:
+    print("❌ data.txt not found!")
 
 print("✅ All files are ready! Upload to GitHub & Deploy on Render.")
